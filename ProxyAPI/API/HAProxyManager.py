@@ -118,8 +118,3 @@ class HAProxyManager:
 
         else:
             self.log_writer("Server not found %s | %s" % (server_name, server_ip))
-
-# proxy = HAProxyManager()
-# # proxy.add_server("trellis", "trellis-2", "10.0.1.167", "80")
-# proxy.remove_server("trellis-2", "10.0.1.167", "80")
-
