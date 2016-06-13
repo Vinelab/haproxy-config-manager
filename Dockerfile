@@ -1,4 +1,4 @@
-FROM django:pyhton2
+FROM django:python2
 
 MAINTAINER Jad Chamoun <jad.chamoun@vinelab.com>
 
