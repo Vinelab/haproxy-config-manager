@@ -1,11 +1,13 @@
 import os
 import shutil
 from datetime import datetime
-
+import slackweb
 
 class HAProxyManager:
 
     def __init__(self):
+        self.slack_incoming_webhook = "WEB_HOOK_HERE"
+        self.slack = slackweb.Slack(url=self.slack_incoming_webhook)
         self.haproxy_config_path = "/etc/haproxy/haproxy.cfg"
         self.haproxy_config_temp_path = "/etc/haproxy/haproxy_temp.cfg"
         self.backup_path = "/etc/haproxy/backup/"
@@ -86,6 +88,10 @@ class HAProxyManager:
 
             self.log_writer('NEW SERVER ' + new_server_config)
 
+            if self.slack_incoming_webhook.__contains__("http"):
+                slackmessage = "New Server %s %s added to %s"%(backend_name, server_name, server_ip)
+                self.slack.notify(text=slackmessage)
+
             self.replace_config()
             self.reload_haproxy()
 
@@ -111,6 +117,10 @@ class HAProxyManager:
             new_haproxy_config.close()
 
             self.log_writer('REMOVED SERVER ' + new_server_config)
+
+            if self.slack_incoming_webhook.__contains__("http"):
+                slackmessage = "Server %s %s was removed" % (server_name, server_ip)
+                self.slack.notify(text=slackmessage)
 
             self.replace_config()
             self.reload_haproxy()

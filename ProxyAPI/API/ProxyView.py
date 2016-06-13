@@ -30,3 +30,11 @@ def remove(request):
         proxy.remove_server(instance_id, private_ip, port_numb)
 
         return HttpResponse(200)
+
+
+@api_view(['GET'])
+def reloadproxy(request):
+    if request.method == 'GET':
+        proxy = HAProxyManager.HAProxyManager()
+        proxy.reload_haproxy()
+
