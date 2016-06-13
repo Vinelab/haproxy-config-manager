@@ -1,5 +1,11 @@
-FROM yuxiaorui/docker-django-rest-framework
+FROM django
 
 MAINTAINER Jad Chamoun <jad.chamoun@vinelab.com>
 
-COPY . /opt/django/app
+COPY . /usr/src/app
+
+WORKDIR /usr/src/app
+
+RUN pip install djangorestframework
+
+CMD ["python","manage.py","runserver","0.0.0.0:8000"]
