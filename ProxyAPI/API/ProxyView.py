@@ -12,7 +12,7 @@ def add(request):
         private_ip = str(request.GET.get('private_ip'))
         port_numb = str(request.GET.get('port_numb'))
 
-        proxy = HAProxyManager()
+        proxy = HAProxyManager.HAProxyManager()
         proxy.add_server(backend, instance_id, private_ip, port_numb)
 
         return HttpResponse(200)
