@@ -2,9 +2,9 @@ FROM django
 
 MAINTAINER Jad Chamoun <jad.chamoun@vinelab.com>
 
-COPY . /usr/src/app
+COPY . /code
 
-WORKDIR /usr/src/app
+WORKDIR /code
 
 RUN pip install djangorestframework
 
