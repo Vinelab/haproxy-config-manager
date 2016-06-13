@@ -6,7 +6,6 @@ from datetime import datetime
 class HAProxyManager:
 
     def __init__(self):
-        self.socket_path = "/tmp/haproxy.sock"
         self.haproxy_config_path = "/etc/haproxy/haproxy.cfg"
         self.haproxy_config_temp_path = "/etc/haproxy/haproxy_temp.cfg"
         self.backup_path = "/etc/haproxy/backup/"
