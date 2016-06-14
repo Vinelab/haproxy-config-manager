@@ -12,6 +12,10 @@ def add(request):
         private_ip = str(request.GET.get('private_ip'))
         port_numb = str(request.GET.get('port_numb'))
 
+        # Check proper instance id (Prevent Chef hardcoded params)
+        if private_ip.__contains__('?message='):
+            private_ip = private_ip.split('?')[0]
+
         proxy = HAProxyManager.HAProxyManager()
         proxy.add_server(backend, instance_id, private_ip, port_numb)
 
@@ -25,6 +29,10 @@ def remove(request):
         instance_id = str(request.GET.get('instance_id'))
         private_ip = str(request.GET.get('private_ip'))
         port_numb = str(request.GET.get('port_numb'))
+
+        # Check proper instance id (Prevent Chef hardcoded params)
+        if private_ip.__contains__('?message='):
+            private_ip = private_ip.split('?')[0]
 
         proxy = HAProxyManager.HAProxyManager()
         proxy.remove_server(instance_id, private_ip, port_numb)
