@@ -12,7 +12,7 @@ def add(request):
         private_ip = str(request.GET.get('private_ip'))
         port_numb = str(request.GET.get('port_numb'))
 
-        # Check proper instance id (Prevent Chef hardcoded params)
+        # Check proper private ip (Prevent Chef hardcoded params)
         if private_ip.__contains__('?message='):
             private_ip = private_ip.split('?')[0]
 
@@ -30,7 +30,7 @@ def remove(request):
         private_ip = str(request.GET.get('private_ip'))
         port_numb = str(request.GET.get('port_numb'))
 
-        # Check proper instance id (Prevent Chef hardcoded params)
+        # Check proper private ip (Prevent Chef hardcoded params)
         if private_ip.__contains__('?message='):
             private_ip = private_ip.split('?')[0]
 
@@ -44,5 +44,7 @@ def remove(request):
 def reloadproxy(request):
     if request.method == 'GET':
         proxy = HAProxyManager.HAProxyManager()
-        proxy.reload_haproxy()
+        proxy.replace_haconfig()
+
+    return HttpResponse(200)
 
