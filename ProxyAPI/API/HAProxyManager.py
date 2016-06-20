@@ -8,9 +8,8 @@ class HAProxyManager:
     def __init__(self):
         self.slack_incoming_webhook = "https://hooks.slack.com/services/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"
         self.slack = slackweb.Slack(url=self.slack_incoming_webhook)
-        self.haproxy_config_path = "/etc/haproxy/haproxy-new.cfg"
-        self.haproxy_config_path_real = "/etc/haproxy/haproxy.cfg"
-        self.haproxy_config_temp_path = "/etc/haproxy/haproxy_temp.cfg"
+        self.haproxy_config = "/etc/haproxy/haproxy.cfg"
+        self.haproxy_config_temp = "/etc/haproxy/haproxy_temp.cfg"
         self.backup_path = "/etc/haproxy/backup/"
         self.logs = "/etc/haproxy/log.txt"
         self.interval = "5000"
@@ -21,13 +20,12 @@ class HAProxyManager:
     # Replace Temp config to actual config after editing
     def replace_config(self):
         self.log_writer("Replacing Config")
-        shutil.copy2(self.haproxy_config_temp_path, self.haproxy_config_path)
-        shutil.copy2(self.haproxy_config_path, self.haproxy_config_path_real)
+        shutil.copy2(self.haproxy_config_temp, self.haproxy_config)
 
     # Replace clone config
     # Used as an API call to reload HAProxy with a working config file
     def replace_haconfig(self):
-        shutil.copy2(self.haproxy_config_path, self.haproxy_config_path_real)
+        shutil.copy2(self.haproxy_config_temp, self.haproxy_config)
         self.reload_haproxy()
         if self.slack_incoming_webhook.__contains__("http"):
             slackmessage = "HA Proxy Reloaded and Replaced Config"
@@ -35,7 +33,7 @@ class HAProxyManager:
 
     # Append log to HAProxy directory log.txt
     def log_writer(self, message):
-        log = open('/etc/haproxy/log.txt', 'a')
+        log = open(self.logs, 'a')
         log.write(datetime.now().time().isoformat() + ' : ' + message + '\n')
         log.close()
 
@@ -55,11 +53,11 @@ class HAProxyManager:
             shutil.copy2(self.backup_path + 'haproxy_old_1.cfg', self.backup_path + 'haproxy_old_2.cfg')
 
         # Overwrite backup file
-        shutil.copy2(self.haproxy_config_path, self.backup_path + 'haproxy_old_1.cfg')
+        shutil.copy2(self.haproxy_config, self.backup_path + 'haproxy_old_1.cfg')
 
     # Boolean method to check if server exists to prevent duplicate servers
     def server_exists(self, server_config):
-        haproxy_config_file = open(self.haproxy_config_path, 'r')
+        haproxy_config_file = open(self.haproxy_config, 'r')
 
         if haproxy_config_file.read().find(server_config) == -1:
             return False
@@ -100,19 +98,19 @@ class HAProxyManager:
 
         # Check if server already exists
         if not self.server_exists(new_server_config):
-            haproxy_config_file = open(self.haproxy_config_path, 'r')
-            new_haproxy_config = open(self.haproxy_config_temp_path, 'w')
+            haproxy_config_file = open(self.haproxy_config, 'r')
+            haproxy_config_temp = open(self.haproxy_config_temp, 'w')
 
             for line in haproxy_config_file.readlines():
 
-                new_haproxy_config.write(line)
+                haproxy_config_temp.write(line)
 
                 if line == "backend %s\n" % backend_name:
                     # Append backend line to the backend specified
-                    new_haproxy_config.write(new_server_config)
+                    haproxy_config_temp.write(new_server_config)
 
             haproxy_config_file.close()
-            new_haproxy_config.close()
+            haproxy_config_temp.close()
 
             # Export log
             self.log_writer('NEW SERVER ' + new_server_config)
@@ -139,8 +137,8 @@ class HAProxyManager:
         new_server_config = self.get_new_server_config(server_name, server_ip, server_port)
 
         if self.server_exists(new_server_config):
-            haproxy_config_file = open(self.haproxy_config_path, 'r')
-            new_haproxy_config = open(self.haproxy_config_temp_path, 'w')
+            haproxy_config_file = open(self.haproxy_config, 'r')
+            new_haproxy_config = open(self.haproxy_config_temp, 'w')
 
             for line in haproxy_config_file.readlines():
 
