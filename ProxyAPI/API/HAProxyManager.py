@@ -68,25 +68,37 @@ class HAProxyManager:
 
         haproxy_config_file.close()
 
-
+    # Graceful Reload for HAProxy on the OS level
     def reload_haproxy(self):
         self.log_writer("reloading haproxy")
 
         command = "haproxy -D -f /etc/haproxy/haproxy.cfg -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)"
         os.system(command)
 
-
+    # Generate new line for a backend server
     def get_new_server_config(self, server_name, server_ip, server_port):
         return "    server %s %s:%s check inter %s fastinter %s fall %s weight %s cookie %s\n" % (
             server_name, server_ip, server_port, self.interval, self.fastinterval, self.fall,
             self.weight, server_name)
 
+    # Method to send a slack message
+    def notify(self, slackmessage):
 
+        # Send slack message if valid web hook available
+        if self.slack_incoming_webhook.__contains__("http"):
+            self.slack.notify(text=slackmessage)
+
+    # Method called from the API
+    # Method that manages the adding server process
     def add_server(self, backend_name, server_name, server_ip, server_port):
+
+        # Backup Config
         self.backup_config()
 
+        # Generate line that should be added in the file
         new_server_config = self.get_new_server_config(server_name, server_ip, server_port)
 
+        # Check if server already exists
         if not self.server_exists(new_server_config):
             haproxy_config_file = open(self.haproxy_config_path, 'r')
             new_haproxy_config = open(self.haproxy_config_temp_path, 'w')
@@ -96,27 +108,34 @@ class HAProxyManager:
                 new_haproxy_config.write(line)
 
                 if line == "backend %s\n" % backend_name:
+                    # Append backend line to the backend specified
                     new_haproxy_config.write(new_server_config)
 
             haproxy_config_file.close()
             new_haproxy_config.close()
 
+            # Export log
             self.log_writer('NEW SERVER ' + new_server_config)
 
-            if self.slack_incoming_webhook.__contains__("http"):
-                slackmessage = "New Server %s %s added to %s" % (server_name, server_ip, backend_name)
-                self.slack.notify(text=slackmessage)
+            # Send slack message
+            slackmessage = "New Server %s %s added to %s" % (server_name, server_ip, backend_name)
+            self.notify(slackmessage)
 
+            # Replace config and reload HAProxy
             self.replace_config()
             self.reload_haproxy()
 
         else:
             self.log_writer("Duplicate Server found %s | %s" % (server_name, server_ip))
 
-
+    # Method called from the API
+    # Method that manages the remove server process
     def remove_server(self, server_name, server_ip, server_port):
+
+        # Backup Config
         self.backup_config()
 
+        # Generate line that should be added in the file
         new_server_config = self.get_new_server_config(server_name, server_ip, server_port)
 
         if self.server_exists(new_server_config):
@@ -125,18 +144,21 @@ class HAProxyManager:
 
             for line in haproxy_config_file.readlines():
 
+                # Remove backend server from config file
                 if not line == new_server_config:
                     new_haproxy_config.write(line)
 
             haproxy_config_file.close()
             new_haproxy_config.close()
 
+            # Export log
             self.log_writer('REMOVED SERVER ' + new_server_config)
 
-            if self.slack_incoming_webhook.__contains__("http"):
-                slackmessage = "Server %s %s was removed" % (server_name, server_ip)
-                self.slack.notify(text=slackmessage)
+            # Send slack message
+            slackmessage = "Server %s %s was removed" % (server_name, server_ip)
+            self.notify(slackmessage)
 
+            # Replace config and reload HAProxy
             self.replace_config()
             self.reload_haproxy()
 
