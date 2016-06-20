@@ -1,5 +1,5 @@
 """
-WSGI config for KebbeTransit project.
+WSGI config for HAProxy API project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
