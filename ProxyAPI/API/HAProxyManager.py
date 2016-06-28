@@ -2,6 +2,7 @@ import os
 import shutil
 from datetime import datetime
 import slackweb
+import EC2Weights
 
 
 class HAProxyManager:
@@ -74,10 +75,18 @@ class HAProxyManager:
         os.system(command)
 
     # Generate new line for a backend server
-    def get_new_server_config(self, server_name, server_ip, server_port):
+    def get_new_server_config(self, server_name, server_ip, server_port, instance_type):
+
+        # Check if instance type is available
+        if len(instance_type) > 0:
+            weight = self.calculate_weight(instance_type)
+        else:
+            # Set default weight
+            weight = self.weight
+
         return "    server %s %s:%s check inter %s fastinter %s fall %s weight %s cookie %s\n" % (
             server_name, server_ip, server_port, self.interval, self.fastinterval, self.fall,
-            self.weight, server_name)
+            weight, server_name)
 
     # Method to send a slack message
     def notify(self, slackmessage):
@@ -88,13 +97,13 @@ class HAProxyManager:
 
     # Method called from the API
     # Method that manages the adding server process
-    def add_server(self, backend_name, server_name, server_ip, server_port):
+    def add_server(self, backend_name, server_name, server_ip, server_port, instance_type):
 
         # Backup Config
         self.backup_config()
 
         # Generate line that should be added in the file
-        new_server_config = self.get_new_server_config(server_name, server_ip, server_port)
+        new_server_config = self.get_new_server_config(server_name, server_ip, server_port, instance_type)
 
         # Check if server already exists
         if not self.server_exists(new_server_config):
@@ -162,3 +171,10 @@ class HAProxyManager:
 
         else:
             self.log_writer("Server not found %s | %s" % (server_name, server_ip))
+
+    # Calculate weight based on instance type
+    def calculate_weight(self, instance_type):
+
+        weight = EC2Weights.EC2Weights(instance_type)
+        return weight.get_weight()
+
