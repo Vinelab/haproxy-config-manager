@@ -27,22 +27,28 @@ class EC2Weights:
 
         instance_index = self.get_instance_index()
 
-        memory = self.data[instance_index]['memory']
-        vcpu = self.data[instance_index]['vCPU']
-
-        # Check if instance is burstable
-        if self.data[instance_index]['ECU'] == 'variable':
-            ecu = 1
+        if instance_index == "Not Found":
+            return 1
         else:
-            ecu = self.data[instance_index]['ECU']
+            memory = self.data[instance_index]['memory']
+            vcpu = self.data[instance_index]['vCPU']
 
-        return memory + vcpu * ecu
+            # Check if instance is burstable
+            if self.data[instance_index]['ECU'] == 'variable':
+                ecu = 1
+            else:
+                ecu = self.data[instance_index]['ECU']
+
+            return round(memory + vcpu * ecu)
 
     # Find index in the list of dictionaries
     def get_instance_index(self):
         for index in range(len(self.data)):
             if self.data[index]['instance_type'] == self.instance_type:
                 return index
+
+        #index not found
+        return 'Not Found'
 
     # Check latest edit
     def latest_edit(self):
@@ -57,7 +63,6 @@ class EC2Weights:
             with open(self.instances_info_path, 'w') as outfile:
                 json.dump(self.data, outfile)
         except:
-            print "cad"
             with open(self.instances_info_path) as instances:
                 self.data = json.load(instances)
 

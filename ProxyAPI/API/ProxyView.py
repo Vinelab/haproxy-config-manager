@@ -14,8 +14,8 @@ def add(request):
         instance_type = str(request.GET.get('type'))
 
         # Check proper private ip (Prevent Chef hardcoded params)
-        if private_ip.__contains__('?message='):
-            private_ip = private_ip.split('?')[0]
+        if instance_type.__contains__('?message='):
+            instance_type = instance_type.split('?')[0]
 
         proxy = HAProxyManager.HAProxyManager()
         proxy.add_server(backend, instance_id, private_ip, port_numb, instance_type)

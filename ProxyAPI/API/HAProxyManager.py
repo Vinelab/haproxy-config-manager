@@ -175,6 +175,7 @@ class HAProxyManager:
     # Calculate weight based on instance type
     def calculate_weight(self, instance_type):
 
+        print instance_type
         weight = EC2Weights.EC2Weights(instance_type)
         return weight.get_weight()
 
