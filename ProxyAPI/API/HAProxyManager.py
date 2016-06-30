@@ -17,6 +17,12 @@ class HAProxyManager:
         self.fastinterval = "1000"
         self.fall = "1"
         self.weight = "1"
+        self.check_temp_config()
+
+    # Check if temporary config exists if not create it
+    def check_temp_config(self):
+        if not os.path.isfile(self.haproxy_config_temp):
+            shutil.copy2(self.haproxy_config, self.haproxy_config_temp)
 
     # Replace Temp config to actual config after editing
     def replace_config(self):
