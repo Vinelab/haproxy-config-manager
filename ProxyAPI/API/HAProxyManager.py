@@ -7,7 +7,7 @@ import EC2Weights
 
 class HAProxyManager:
     def __init__(self):
-        self.slack_incoming_webhook = "YOUR_SLACK_WEBHOOK_HERE"
+        self.slack_incoming_webhook = "https://hooks.slack.com/services/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"
         self.slack = slackweb.Slack(url=self.slack_incoming_webhook)
         self.haproxy_config = "/etc/haproxy/haproxy.cfg"
         self.haproxy_config_temp = "/etc/haproxy/haproxy_temp.cfg"
@@ -137,13 +137,13 @@ class HAProxyManager:
 
     # Method called from the API
     # Method that manages the remove server process
-    def remove_server(self, server_name, server_ip, server_port):
+    def remove_server(self, server_name, server_ip, server_port, instance_type):
 
         # Backup Config
         self.backup_config()
 
         # Generate line that should be added in the file
-        new_server_config = self.get_new_server_config(server_name, server_ip, server_port)
+        new_server_config = self.get_new_server_config(server_name, server_ip, server_port, instance_type)
 
         if self.server_exists(new_server_config):
             haproxy_config_file = open(self.haproxy_config, 'r')
@@ -175,7 +175,5 @@ class HAProxyManager:
     # Calculate weight based on instance type
     def calculate_weight(self, instance_type):
 
-        print instance_type
         weight = EC2Weights.EC2Weights(instance_type)
         return weight.get_weight()
-

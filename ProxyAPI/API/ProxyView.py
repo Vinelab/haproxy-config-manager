@@ -30,13 +30,14 @@ def remove(request):
         instance_id = str(request.GET.get('instance_id'))
         private_ip = str(request.GET.get('private_ip'))
         port_numb = str(request.GET.get('port_numb'))
+        instance_type = str(request.GET.get('type'))
 
         # Check proper private ip (Prevent Chef hardcoded params)
-        if private_ip.__contains__('?message='):
-            private_ip = private_ip.split('?')[0]
+        if instance_type.__contains__('?message='):
+            instance_type = instance_type.split('?')[0]
 
         proxy = HAProxyManager.HAProxyManager()
-        proxy.remove_server(instance_id, private_ip, port_numb)
+        proxy.remove_server(instance_id, private_ip, port_numb, instance_type)
 
         return HttpResponse(200)
 
@@ -48,4 +49,3 @@ def reloadproxy(request):
         proxy.replace_haconfig()
 
     return HttpResponse(200)
-
