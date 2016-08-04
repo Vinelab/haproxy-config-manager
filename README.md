@@ -44,7 +44,7 @@ http://HAPROXYAPI_IP:8001/api/add/?instance_id=INSTANCE_ID&backend=BACKEND_NAME&
 ```
 #####Remove Server from Backend
 ```
-http://HAPROXYAPI_IP:8001/api/add/?instance_id=INSTANCE_ID&port_numb=PORT_NUMBER&private_ip=INSTANCE_IP&type=INSTANCE_TYPE
+http://HAPROXYAPI_IP:8001/api/remove/?instance_id=INSTANCE_ID&port_numb=PORT_NUMBER&private_ip=INSTANCE_IP&type=INSTANCE_TYPE
 ```
 #####Reload HAProxy Config
 ```
