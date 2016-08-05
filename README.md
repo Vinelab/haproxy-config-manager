@@ -50,8 +50,65 @@ http://HAPROXYAPI_IP:8001/api/remove/?instance_id=INSTANCE_ID&port_numb=PORT_NUM
 ```
 http://HAPROXYAPI_IP:8001/api/reload
 ```
-####AWS Opsworks Recipes
-#####Recipe to Add Server
+###AWS Opsworks Recipes
+####Recipe to Deploy and Run HAProxy API
+```
+script 'clone_code' do
+    interpreter 'bash'
+    cwd "/home"
+    code <<-EOH
+    git clone https://github.com/Vinelab/haproxy-config-manager
+EOH
+
+end
+
+script 'install_requirements' do
+    interpreter 'bash'
+    cwd "/home/haproxy-config-manager"
+    code <<-EOH
+    pip install -r requirements.txt
+EOH
+
+end
+
+script 'launch_deamon' do
+    interpreter 'bash'
+    cwd "/home/haproxy-config-manager"
+    code <<-EOH
+    sudo uwsgi --http :8001 --wsgi-file ProxyAPI/wsgi.py --enable-threads --daemonize=/home/haproxy-config-manager/uwsgi-api.log
+EOH
+
+end
+```
+####Attributes default.rb
+```
+#General Attributes
+default[:instance] = {}
+default[:instance]['instance_id'] = node['opsworks']['instance']['aws_instance_id']
+default[:instance]['private_ip'] = node['opsworks']['instance']['private_ip']
+#haproxy api specific attributes
+default[:haproxyapi] = {}
+default[:haproxyapi]['private_ip'] = node['haproxy_ip']
+default[:haproxyapi]['backend'] = node['backend']
+#haproxy opsworks related attributes
+default[:instance]['id'] = node["opsworks"]["instance"]["id"]
+default[:instance]['instance_type'] = node["opsworks"]["instance"]["instance_type"]
+default[:instance]['stack_id'] = node["opsworks"]["stack"]["id"]
+```
+####Custom JSONs
+- The HAProxy Private IP should be in the stack custom JSON.
+```
+{
+"haproxy_ip":"xxx.xxx.xxx.xxx"
+}
+```
+- The Backend that the instance should be added to needs to be present in the layer's custom JSON.
+```
+{
+"backend":"najem"
+}
+```
+####Recipe to Add Server
 ```
 #API Request to add instance to Load Balancer
 
@@ -61,7 +118,7 @@ http_request '' do
 
 end
 ```
-#####Recipe to Remove Server
+####Recipe to Remove Server
 ```
 #API Request to remove instance from Load Balancer
 
@@ -71,7 +128,7 @@ http_request '' do
 
 end
 ```
-#####Recipe to Reload config
+####Recipe to Reload config
 ```
 #API replace request
 
@@ -81,3 +138,4 @@ http_request '' do
 
 end
 ```
+
