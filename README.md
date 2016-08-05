@@ -14,11 +14,22 @@ Note: The API is designed to be used internally on local subnets.
 - Add New Server to Backend
 - Remove Server from Backend
 - Reload HAProxy
+- Slack Integration
 
 ## Response
 
 - 200 (For all successful requests)
 - Still under developement
+
+## Slack Integration
+-The slac integration uses the slackweb package : https://github.com/satoshi03/slack-python-webhook
+-To integrate slack just generate a custom webhook here: https://api.slack.com/incoming-webhooks
+-Put the webhook URL in :
+```
+class HAProxyManager:
+    def __init__(self):
+        self.slack_incoming_webhook = "SLACK_WEBHOOK_HERE"
+```
 
 ## Getting Started
 
