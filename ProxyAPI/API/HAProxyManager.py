@@ -7,7 +7,7 @@ import EC2Weights
 
 class HAProxyManager:
     def __init__(self):
-        self.slack_incoming_webhook = "https://hooks.slack.com/services/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"
+        self.slack_incoming_webhook = "SLACK_WEBHOOK_HERE"
         self.slack = slackweb.Slack(url=self.slack_incoming_webhook)
         self.haproxy_config = "/etc/haproxy/haproxy.cfg"
         self.haproxy_config_temp = "/etc/haproxy/haproxy_temp.cfg"
