@@ -36,22 +36,22 @@ Make sure port 8001 inbound is open on local subnet
 sudo uwsgi --http :8001 --wsgi-file ProxyAPI/wsgi.py --enable-threads --daemonize=/home/haproxy-config-manager/uwsgi-api.log
 ```
 
-###API Calls
-####Curl
-#####Add Server to Backend
+##API Calls
+###Curl
+####Add Server to Backend
 ```
 http://HAPROXYAPI_IP:8001/api/add/?instance_id=INSTANCE_ID&backend=BACKEND_NAME&port_numb=PORT_NUMBER&private_ip=INSTANCE_IP&type=INSTANCE_TYPE
 ```
-#####Remove Server from Backend
+####Remove Server from Backend
 ```
 http://HAPROXYAPI_IP:8001/api/remove/?instance_id=INSTANCE_ID&port_numb=PORT_NUMBER&private_ip=INSTANCE_IP&type=INSTANCE_TYPE
 ```
-#####Reload HAProxy Config
+####Reload HAProxy Config
 ```
 http://HAPROXYAPI_IP:8001/api/reload
 ```
-###AWS Opsworks Recipes
-####Recipe to Deploy and Run HAProxy API
+##AWS Opsworks Recipes
+###Recipe to Deploy and Run HAProxy API
 ```
 script 'clone_code' do
     interpreter 'bash'
@@ -80,7 +80,7 @@ EOH
 
 end
 ```
-####Attributes default.rb
+###Attributes default.rb
 ```
 #General Attributes
 default[:instance] = {}
@@ -95,7 +95,7 @@ default[:instance]['id'] = node["opsworks"]["instance"]["id"]
 default[:instance]['instance_type'] = node["opsworks"]["instance"]["instance_type"]
 default[:instance]['stack_id'] = node["opsworks"]["stack"]["id"]
 ```
-####Custom JSONs
+###Custom JSONs
 - The HAProxy Private IP should be in the stack custom JSON.
 ```
 {
@@ -108,7 +108,7 @@ default[:instance]['stack_id'] = node["opsworks"]["stack"]["id"]
 "backend":"najem"
 }
 ```
-####Recipe to Add Server
+###Recipe to Add Server
 ```
 #API Request to add instance to Load Balancer
 
@@ -118,7 +118,7 @@ http_request '' do
 
 end
 ```
-####Recipe to Remove Server
+###Recipe to Remove Server
 ```
 #API Request to remove instance from Load Balancer
 
@@ -128,7 +128,7 @@ http_request '' do
 
 end
 ```
-####Recipe to Reload config
+###Recipe to Reload config
 ```
 #API replace request
 
