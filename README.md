@@ -7,7 +7,7 @@ The formula followed to determine the weight of the instance is : round(memory +
 
 EX: If the size of the EC2 instance is M4.large the weight would be round(8 + 6.5 * 2 ) = 21
 
-Note: The API is designed to be used internally on local subnets.
+Note: The API is designed to be used internally on local subnets don't open port 8001 to the public.
 
 ## Features
 
@@ -22,10 +22,9 @@ Note: The API is designed to be used internally on local subnets.
 - Still under developement
 
 ## Slack Integration
-
-- The slack integration uses the slackweb package : https://github.com/satoshi03/slack-python-webhook
-- To integrate slack just generate a custom webhook here: https://api.slack.com/incoming-webhooks
-- Put the webhook URL in :
+-The slack integration uses the slackweb package : https://github.com/satoshi03/slack-python-webhook
+-To integrate slack just generate a custom webhook here: https://api.slack.com/incoming-webhooks
+-Put the webhook URL in :
 ```
 class HAProxyManager:
     def __init__(self):
